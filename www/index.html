@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>speedTest</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+
+<body>
+    <main class="container-fluid">
+        <article>
+            <header>Teste de Velocidade</header>
+            <div id="chart_div" style="width: 600px; height: 600px;"></div>
+            <button onclick="download()">Download</button>
+            <footer>Velocidade <span id="speed"></span></footer>
+        </article>
+    </main>
+</body>
+<script>
+    let timer;
+    let lastProgress = null;
+    let currentProgress;
+    google.charts.load('current', { 'packages': ['gauge'] });
+    google.charts.setOnLoadCallback(drawChart);
+    const speedel = document.getElementById('speed');
+    function download() {
+        let xhttp = new XMLHttpRequest();
+        xhttp.addEventListener('progress', (event) => {
+            currentProgress = event;
+            // if(!lastProgress == null) {lastProgress = event;}
+            // console.log(event, humanReadableSize(event.loaded));
+        })
+        xhttp.addEventListener("loadend", (event) => {
+            lastProgress = null;
+            currentProgress = null;
+            console.log("terminou");
+            clearInterval(timer);
+        });
+        xhttp.addEventListener('loadstart', (event) => {
+            timer = setInterval(() => {
+                if (lastProgress == null) {
+                    console.log(humanReadableSize((currentProgress.loaded)), '/s');
+
+                } else {
+                    console.log(humanReadableSize((currentProgress.loaded - lastProgress.loaded || 0)), '/s');
+                    console.log(humanReadableSize((currentProgress.loaded - lastProgress.loaded || 0), true), '/s');
+                }
+                lastProgress = currentProgress;
+            }, 1000)
+        })
+        xhttp.open("GET", "/speed", true);
+        xhttp.send();
+    }
+
+    function drawChart() {
+
+        var data = google.visualization.arrayToDataTable([
+            ['Label', 'Value'],
+            ['Download', 1000],
+            ['Upload', 1000],
+        ]);
+
+        var options = {
+            width: 800, height: 800,
+            // redFrom: 90, redTo: 100,
+            // yellowFrom: 75, yellowTo: 90,
+            // minorTicks: 5
+        };
+
+        var chart = new google.visualization.Gauge(document.getElementById('chart_div'));
+
+        chart.draw(data, options);
+
+        setInterval(function () {
+            data.setValue(0, 1, 40 + Math.round(60 * Math.random()));
+            chart.draw(data, options);
+        }, 13000);
+        // setInterval(function () {
+        //     data.setValue(1, 1, 40 + Math.round(60 * Math.random()));
+        //     chart.draw(data, options);
+        // }, 5000);
+        // setInterval(function () {
+        //     data.setValue(2, 1, 60 + Math.round(20 * Math.random()));
+        //     chart.draw(data, options);
+        // }, 26000);
+    }
+    function humanReadableSize(bytes, onlyMb = false) {
+        if (onlyMb) {
+            return (bytes / 1024.0 / 1024.0);
+        }
+        if (bytes < 1024) return String(bytes) + " B";
+        else if (bytes < (1024 * 1024)) return String(bytes / 1024.0) + " KB";
+        else if (bytes < (1024 * 1024 * 1024)) return String(bytes / 1024.0 / 1024.0) + " MB";
+        else return String(bytes / 1024.0 / 1024.0 / 1024.0) + " GB";
+    }
+</script>
+
+</html>
