@@ -27,12 +27,24 @@
     google.charts.load('current', { 'packages': ['gauge'] });
     google.charts.setOnLoadCallback(drawChart);
     const speedel = document.getElementById('speed');
+    let data;
+    let chart;
+    let options;
     function download() {
         let xhttp = new XMLHttpRequest();
         xhttp.addEventListener('progress', (event) => {
             currentProgress = event;
-            // if(!lastProgress == null) {lastProgress = event;}
-            // console.log(event, humanReadableSize(event.loaded));
+            if (lastProgress == null) {
+                lastProgress = event;
+                return;
+            }
+            // console.log(humanReadableSize((currentProgress.loaded - lastProgress.loaded || 0)), '/s');
+            let mb = (humanReadableSize((currentProgress.loaded - lastProgress.loaded || 0), true));
+            // console.log(humanReadableSize((currentProgress.loaded)));
+            console.log(mb);
+            lastProgress = currentProgress
+            data.setValue(0, 1, mb);
+            chart.draw(data, options);
         })
         xhttp.addEventListener("loadend", (event) => {
             lastProgress = null;
@@ -41,16 +53,16 @@
             clearInterval(timer);
         });
         xhttp.addEventListener('loadstart', (event) => {
-            timer = setInterval(() => {
-                if (lastProgress == null) {
-                    console.log(humanReadableSize((currentProgress.loaded)), '/s');
+            // timer = setInterval(() => {
+            //     if (lastProgress == null) {
+            //         console.log(humanReadableSize((currentProgress.loaded)), '/s');
 
-                } else {
-                    console.log(humanReadableSize((currentProgress.loaded - lastProgress.loaded || 0)), '/s');
-                    console.log(humanReadableSize((currentProgress.loaded - lastProgress.loaded || 0), true), '/s');
-                }
-                lastProgress = currentProgress;
-            }, 1000)
+            //     } else {
+            //         console.log(humanReadableSize((currentProgress.loaded - lastProgress.loaded || 0)), '/s');
+            //         console.log(humanReadableSize((currentProgress.loaded - lastProgress.loaded || 0), true), '/s');
+            //     }
+            //     lastProgress = currentProgress;
+            // }, 1000)
         })
         xhttp.open("GET", "/speed", true);
         xhttp.send();
@@ -58,27 +70,27 @@
 
     function drawChart() {
 
-        var data = google.visualization.arrayToDataTable([
+        data = google.visualization.arrayToDataTable([
             ['Label', 'Value'],
-            ['Download', 1000],
-            ['Upload', 1000],
+            ['Download', 0],
+            ['Upload', 0],
         ]);
 
-        var options = {
+        options = {
             width: 800, height: 800,
             // redFrom: 90, redTo: 100,
             // yellowFrom: 75, yellowTo: 90,
             // minorTicks: 5
         };
 
-        var chart = new google.visualization.Gauge(document.getElementById('chart_div'));
+        chart = new google.visualization.Gauge(document.getElementById('chart_div'));
 
         chart.draw(data, options);
 
-        setInterval(function () {
-            data.setValue(0, 1, 40 + Math.round(60 * Math.random()));
-            chart.draw(data, options);
-        }, 13000);
+        // setInterval(function () {
+        //     data.setValue(0, 1, 40 + Math.round(60 * Math.random()));
+        //     chart.draw(data, options);
+        // }, 13000);
         // setInterval(function () {
         //     data.setValue(1, 1, 40 + Math.round(60 * Math.random()));
         //     chart.draw(data, options);
