@@ -46,40 +46,40 @@ app.use('/getip', (req, res) => {
 function getLocalOrPrivateIpInfo(ip = "") {
     // ::1/128 is the only localhost ipv6 address. there are no others, no need to strpos this
     if ('::1' === ip) {
-        return 'localhost IPv6 access';
+        return 'localhost IPv6';
     }
 
-    // simplified IPv6 link-local address (should match fe80::/10)
+    // simplified IPv6 rede local address (should match fe80::/10)
     if (ip.indexOf('fe80:') === 0) {
-        return 'link-local IPv6 access';
+        return 'rede local IPv6 ';
     }
 
     // anything within the 127/8 range is localhost ipv4, the ip must start with 127.0
     if (ip.indexOf('127.') === 0) {
-        return 'localhost IPv4 access';
+        return 'localhost IPv4';
     }
 
-    // 10/8 private IPv4
+    // 10/8 rede local IPv4
     if (ip.indexOf('10.') === 0) {
-        return 'private IPv4 access';
+        return 'rede local IPv4';
     }
 
-    // 172.16/12 private IPv4
+    // 172.16/12 rede local IPv4
     if (ip.match('/^172\.(1[6-9]|2\d|3[01])\./', ip) === 1) {
-        return 'private IPv4 access';
+        return 'rede local IPv4';
     }
 
-    // 192.168/16 private IPv4
+    // 192.168/16 rede local IPv4
     if (ip.indexOf('192.168.') === 0) {
-        return 'private IPv4 access';
+        return 'rede local IPv4';
     }
 
-    // IPv4 link-local
+    // IPv4 rede local
     if (ip.indexOf('169.254.') === 0) {
-        return 'link-local IPv4 access';
+        return 'rede local IPv4';
     }
 
-    return null;
+    return 'publico IPv4/IPv6';
 }
 
 app.listen(process.env.HTTP_PORT || 3333, () => {
